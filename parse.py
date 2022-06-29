@@ -1,0 +1,30 @@
+import fdb
+from config import name_BD, user_BD, pass_BD
+
+con = fdb.connect(dsn=name_BD, user=user_BD, password=pass_BD)
+cur = con.cursor()
+
+
+
+"""Парсим все приемы за этот день"""
+def sql_all_treat_today():
+    sql = """SELECT DOCTOR.DNAME, DOCTOR.DCODE, ROOMS.SHORTNAME, SCHEDULE.starttreat, SCHEDULE.finishtreat, 
+    DOCTOR.DOCTPOST 
+    FROM SCHEDULE, DOCTOR, CHAIRS, ROOMS 
+    WHERE SCHEDULE.WORKDATE=CURRENT_DATE AND SCHEDULE.DCODE=DOCTOR.DCODE AND 
+    SCHEDULE.CHID=CHAIRS.CHID AND CHAIRS.RID=ROOMS.RID ORDER BY DOCTOR.DNAME"""
+
+    cur.execute(sql)
+    return cur
+
+
+
+"""Парсим все расписание на этот день"""
+def sql_schedule():
+    sql = """SELECT DOCTOR.DNAME, DOCTOR.DCODE, DOCTSHEDULE.SCHEDLOCKED, DOCTSHEDULE.BEGHOUR, DOCTSHEDULE.BEGMIN, 
+    DOCTSHEDULE.ENDHOUR, DOCTSHEDULE.ENDMIN, ROOMS.SHORTNAME, DOCTOR.DOCTPOST FROM DOCTSHEDULE, DOCTOR, CHAIRS, ROOMS 
+    WHERE WDATE=CURRENT_DATE AND DOCTSHEDULE.DCODE=DOCTOR.DCODE AND DOCTSHEDULE.CHAIR=CHAIRS.CHID AND 
+    CHAIRS.RID=ROOMS.RID AND DOCTSHEDULE.SCHEDLOCKED=0 ORDER BY SHORTNAME"""
+
+    cur.execute(sql)
+    return cur
